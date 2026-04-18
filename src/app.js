@@ -3,24 +3,25 @@ const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 7777;
 
-// app.use((req, res) => {
-//   // request handler function its handle all request
-//   res.send("hello from the server!");
-// });
+// This will match only GET HTTP method API call to /user (exact path match)
+app.get("/user", (req, res) => {
+  res.send({ firstName: "mani", lastName: "ram" });
+});
 
+app.post("/user", (req, res) => {
+  // saving data to DB
+  res.send("data successfully save on database!");
+});
+
+app.delete("/user", (req, res) => {
+  // user deleted
+  res.send("user deleted successfully!");
+});
+
+// This will match all HTTP method API call to /test (exact path match)
 app.use("/test", (req, res) => {
   // request handler function its handle only /test request
   res.send("hello from the server test!");
-});
-
-app.use("/hello", (req, res) => {
-  // request handler function its handle only /hello request
-  res.send("hello hello server hello!");
-});
-
-app.use("/", (req, res) => {
-  // request handler function its handle only / request (home) || its work with first match request path and return to response
-  res.send("hello from the server home!");
 });
 
 app.listen(PORT, () => {
