@@ -3,46 +3,18 @@ const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 7777;
 
-// app.use(route, route handler function1,...route handler functionN);
-// app.use(route, rH1, rH2, rH3, rH4, rH5);
-// app.use(route, [rH1, rH2, rH3, rH4, rH5]);
-// app.use(route, rH1, rH2, [rH3, rH4], rH5);
-// all are gives same response
+// ye route ek switch statement kese work krta hai vo exect. path match krta hai usko milne ke bad vahi se response send krne ke kosis karta yadi response nhi bhej rha hai aur vo next function kiya hai to vo next functioon ko age bad ke uske associated route ko trigger krta hai.
 
-const rH1 = (req, res, next) => {
-  console.log("response 1");
-  // res.send("response 1");
-  next(); // its throwing error because server already send response and its again send the response then connection already closed
-};
-
-const rH2 = (req, res, next) => {
-  console.log("response 2");
-  // res.send("response 2");
-  next();
-};
-
-const rH3 = (req, res, next) => {
-  console.log("response 3");
-  res.send("response 3");
-  next();
-};
-const rH4 = (req, res, next) => {
-  console.log("response 4");
-  res.send("response 4");
-  next();
-};
-
-app.use("/user", rH1, [rH2, rH3, rH4], (req, res, next) => {
-  console.log("response 5");
-  res.send("response 5"); // if already response is send then connection already closed then its throwing error in node console:-> Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
-  // next(); // its throwing error because server need next handler function, if response is not send then, so its showing error :-> Cannot GET /user
+// 2. app.use WITH PATH - yah /user se suru hone vale all route pe chalega cheye ye get post put...delete ho. ye age ke sabhi route pe chalega jese ki /user/123
+app.use("/user", (req, res) => {
+  res.status(400); // ise status code set hota hai response send krne pe user ko response milega direct status code set krne se nhi.
+  res.send("response done");
 });
 
-// case 1: if already server response send kr chuka hai uske bad next() call krte hai to aur next function nhi hai to vaha error nhi ayega vo proper work kareg but ye bad pratice hai.
-
-// case 2: if already server response send kr chuka hai uske bad next() call krte hai to aur next function hai to uska code proper execute hoga aur uske age next() call krte hai to aur ke age ke ane wale function server reaponse nhi send kr rha hai to vo proper work karega without error ke. ye same case 1 ke jesa hoga. if you send again response then its throwing error:-> 'Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client'.
-
-// case 3: next() call nhi krte hai to age bhi chain of route hander hai to jata tak next function hua hai uske agen next() call nhi hua the route vahi me stop ho jayega server usko response send krne ki kosis karega if response send ka code to vahi se response send kr dega. aur response send nhi karega to vo infinite loop me chale jayega user wait kete rahega aur server pending request show karega.
+// 3. app.all - yeh sirf '/secret' route pe hi chalega ye  all route pe chalega chaye ye get post put...delete ho but jese ki /secret/123 ispe nhi chalega
+app.all("/secret", (req, res) => {
+  res.send("You accessed the secret route with " + req.method);
+});
 
 app.listen(PORT, () => {
   console.log(`server successfully listening on port ${PORT}...`);
