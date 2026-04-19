@@ -9,34 +9,34 @@ const PORT = process.env.PORT || 7777;
 // app.use(route, rH1, rH2, [rH3, rH4], rH5);
 // all are gives same response
 
-app.use(
-  "/user",
-  (req, res, next) => {
-    console.log("response 1");
-    // res.send("response 1");
-    next(); // its throwing error because server already send response and its again send the response then connection already closed
-  },
-  (req, res, next) => {
-    console.log("response 2");
-    // res.send("response 2");
-    next();
-  },
-  (req, res, next) => {
-    console.log("response 3");
-    res.send("response 3");
-    next();
-  },
-  (req, res, next) => {
-    console.log("response 4");
-    res.send("response 4");
-    next();
-  },
-  (req, res, next) => {
-    console.log("response 5");
-    res.send("response 5"); // if already response is send then connection already closed then its throwing error in node console:-> Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
-    // next(); // its throwing error because server need next handler function, if response is not send then, so its showing error :-> Cannot GET /user
-  },
-);
+const rH1 = (req, res, next) => {
+  console.log("response 1");
+  // res.send("response 1");
+  next(); // its throwing error because server already send response and its again send the response then connection already closed
+};
+
+const rH2 = (req, res, next) => {
+  console.log("response 2");
+  // res.send("response 2");
+  next();
+};
+
+const rH3 = (req, res, next) => {
+  console.log("response 3");
+  res.send("response 3");
+  next();
+};
+const rH4 = (req, res, next) => {
+  console.log("response 4");
+  res.send("response 4");
+  next();
+};
+
+app.use("/user", rH1, [rH2, rH3, rH4], (req, res, next) => {
+  console.log("response 5");
+  res.send("response 5"); // if already response is send then connection already closed then its throwing error in node console:-> Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+  // next(); // its throwing error because server need next handler function, if response is not send then, so its showing error :-> Cannot GET /user
+});
 
 // case 1: if already server response send kr chuka hai uske bad next() call krte hai to aur next function nhi hai to vaha error nhi ayega vo proper work kareg but ye bad pratice hai.
 
