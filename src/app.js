@@ -3,17 +3,23 @@ const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 7777;
 
-// ye route ek switch statement kese work krta hai vo exect. path match krta hai usko milne ke bad vahi se response send krne ke kosis karta yadi response nhi bhej rha hai aur vo next function kiya hai to vo next functioon ko age bad ke uske associated route ko trigger krta hai.
+// Middleware Express.js ka ek aisa function hai jiske paas Request (req), Response (res), aur agle function ka access (next) hota hai. Ye request-response cycle ko beech mein hi manipulate ya end karne ki taqat rakhta hai
 
-// 2. app.use WITH PATH - yah /user se suru hone vale all route pe chalega cheye ye get post put...delete ho. ye age ke sabhi route pe chalega jese ki /user/123
-app.use("/user", (req, res) => {
-  res.status(400); // ise status code set hota hai response send krne pe user ko response milega direct status code set krne se nhi.
-  res.send("response done");
+app.use("/user", (req, res, next) => {
+  console.log("response user");
+  next();
 });
 
-// 3. app.all - yeh sirf '/secret' route pe hi chalega ye  all route pe chalega chaye ye get post put...delete ho but jese ki /secret/123 ispe nhi chalega
-app.all("/secret", (req, res) => {
-  res.send("You accessed the secret route with " + req.method);
+// same route hai to ham ek route ke next() call kr ke second joki same route hai to vahi pe call transfer kr sakte means jese first route handle response nhi dena chahta hai to vo next() call krke uske same exect match route ko pass krte hai call ise hi middleware kahte hai joki bich me request ko intercept krta hai aur modified kr sakta hai aur next fucntion call kr sakta hai
+app.use("/user", (req, res) => {
+  console.log("get data for user");
+  res.send("get data for user");
+});
+
+app.use("/admin", (req, res, next) => {
+  console.log("response admin");
+  res.send("get data for admin");
+  // next();
 });
 
 app.listen(PORT, () => {
