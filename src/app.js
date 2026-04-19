@@ -16,6 +16,11 @@ app.use("/user", (req, res) => {
   res.send("get data for user");
 });
 
+app.get("/user/getData", (req, res) => {
+  console.log("get data for user");
+  res.send("get data for user");
+});
+
 app.use("/admin", (req, res, next) => {
   console.log("response admin");
   res.send("get data for admin");
