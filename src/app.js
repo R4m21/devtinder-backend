@@ -1,9 +1,16 @@
 require("./config/env");
 const express = require("express");
 const connectDB = require("./config/database");
+const bcrypt = require("bcrypt");
+const {
+  validationSignupData,
+  validationLoginData,
+} = require("./utils/validation");
 const User = require("./models/user");
 const app = express();
 const PORT = process.env.PORT || 7777;
+const SALT_ROUND = process.env.SALT_ROUND || 10;
+
 app.use(express.json());
 
 // JSON Error Handling
@@ -19,25 +26,45 @@ app.use((err, req, res, next) => {
 app.post("/signup", async (req, res) => {
   // Creating a new instance of the User model
   try {
-    const ALLOWED_FIELDS = [
-      "firstName",
-      "lastName",
-      "emailId",
-      "password",
-      "age",
-      "gender",
-    ];
-    const isFieldAllowed = Object.keys(req.body).every((v) =>
-      ALLOWED_FIELDS.includes(v),
-    );
-    if (!isFieldAllowed) {
-      throw new Error("Some fields are not allowed");
-    }
-    const user = new User(req.body);
+    // validation check
+    validationSignupData(req);
+
+    // need to password hash before the saving data on database
+    const { firstName, lastName, emailId, password } = req.body;
+    const hashPassword = await bcrypt.hash(password, Number(SALT_ROUND));
+
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: hashPassword,
+    });
+
     console.log(await user.save());
     return res.send("user added successfully...");
   } catch (err) {
-    return res.status(400).send("Error saving the user:" + err.message);
+    return res.status(400).send("Error : " + err.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    // validation check
+    validationLoginData(req);
+
+    // need to password compare with db store hashPassword
+    const { emailId, password } = req.body;
+    const user = await User.findOne({ emailId });
+    if (!user) {
+      throw new Error("Invalid credential");
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new Error("Invalid credential");
+    }
+    return res.send("login successfully...");
+  } catch (err) {
+    return res.status(400).send("Error : " + err.message);
   }
 });
 
