@@ -1,38 +1,75 @@
 const mongoose = require("mongoose");
+const isEmail = require("validator/lib/isEmail");
+const isUrl = require("validator/lib/isURL");
 
 const userSchema = mongoose.Schema(
   {
-    firstName: { type: String, required: true, minLength: 4, maxLength: 50 },
-    lastName: { type: String, minLength: 4, maxLength: 50 },
+    firstName: {
+      type: String,
+      required: [true, "firstname is required"],
+      trim: true,
+      minLength: 4,
+      maxLength: 50,
+    },
+    lastName: {
+      type: String,
+      trim: true,
+      minLength: 4,
+      maxLength: 50,
+    },
     emailId: {
       type: String,
       required: [true, "email is required"],
       unique: true,
+      lowercase: true,
+      trim: true,
       validate: {
-        validator: function (v) {
-          // Yeh Regex check karega ki email format sahi hai ya nahi
-          return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
-        },
-        message: (props) => `${props.value} this email is not valid`,
+        validator: (v) => isEmail(v),
+        message: (props) => `${props.value} is not a valid email`,
       },
     },
-    password: { type: String, required: true, minLength: 8, maxLength: 32 },
-    age: { type: Number, min: 18 },
+    password: {
+      type: String,
+      required: [true, "password is required"],
+      // Note: Password की maxLength यहाँ बड़ी रखें क्योंकि Hashing के बाद साइज बढ़ जाता है
+    },
+    age: {
+      type: Number,
+      min: [18, "Age must be at least 18"],
+    },
     gender: {
       type: String,
-      validate: function (val) {
-        if (!["male", "female", "other"].includes(val)) {
-          throw new Error("Gender data is not valid");
-        }
+      lowercase: true,
+      enum: {
+        values: ["male", "female", "others"],
+        message: "{VALUE} is not a valid gender",
       },
     },
     photoUrl: {
       type: String,
+      maxLength: 2048,
       default:
         "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG.png",
+      validate: {
+        validator: (v) => isURL(v),
+        message: "Invalid Photo URL",
+      },
     },
-    about: { type: String, default: "its default about for user" },
-    skills: { type: [String] },
+    about: {
+      type: String,
+      maxLength: [250, "About section can't exceed 250 characters"],
+      default: "its default about for user",
+      trim: true,
+    },
+    skills: {
+      type: [String],
+      validate: {
+        validator: function (v) {
+          return v && v.length >= 1 && v.length <= 10;
+        },
+        message: "Skills must be between 1 and 10 items",
+      },
+    },
   },
   { timestamps: true },
 );
