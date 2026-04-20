@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const isEmail = require("validator/lib/isEmail");
 const isURL = require("validator/lib/isURL");
+const isStrongPassword = require("validator/lib/isStrongPassword");
 
 const userSchema = mongoose.Schema(
   {
@@ -31,6 +32,10 @@ const userSchema = mongoose.Schema(
     password: {
       type: String,
       required: [true, "password is required"],
+      validate: {
+        validator: (v) => isStrongPassword(v),
+        message: (props) => `Enter a strong password`,
+      },
       // Note: Password की maxLength यहाँ बड़ी रखें क्योंकि Hashing के बाद साइज बढ़ जाता है
     },
     age: {
