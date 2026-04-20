@@ -18,31 +18,28 @@ app.use((err, req, res, next) => {
 
 app.post("/signup", async (req, res) => {
   // Creating a new instance of the User model
-  const user = new User(req.body);
   try {
+    const ALLOWED_FIELDS = [
+      "firstName",
+      "lastName",
+      "emailId",
+      "password",
+      "age",
+      "gender",
+    ];
+    const isFieldAllowed = Object.keys(req.body).every((v) =>
+      ALLOWED_FIELDS.includes(v),
+    );
+    if (!isFieldAllowed) {
+      throw new Error("Some fields are not allowed");
+    }
+    const user = new User(req.body);
     console.log(await user.save());
     return res.send("user added successfully...");
   } catch (err) {
     return res.status(400).send("Error saving the user:" + err.message);
   }
 });
-
-// // get user by email
-// app.get("/user", async (req, res) => {
-//   try {
-//     const userEmail = req.body.emailId;
-//     const users = await User.find({ emailId: userEmail });
-
-//     if (!users.length) return res.status(404).send("users not found");
-//     else {
-//       console.log("users", users);
-//       return res.json(users); // res.json() (Specifically for JSON) - Ye method tab use karte hain jab aapko sirf JSON data bhejna ho
-//     }
-//   } catch (err) {
-//     console.log(err.message);
-//     return res.status(400).send("something went wrong");
-//   }
-// });
 
 // get user data from userId
 app.get("/user", async (req, res) => {
@@ -56,10 +53,59 @@ app.get("/user", async (req, res) => {
   }
 });
 
+// // PATCH ka matlab hota hai "sirf utna badlo jitni zaroorat hai".
+// app.patch("/user", async (req, res) => {
+//   try {
+//     const ALLOWED_UPDATES = [
+//       "userId",
+//       "photoUrl",
+//       "about",
+//       "gender",
+//       "age",
+//       "skills",
+//     ];
+//     const isUpdateAllowed = Object.keys(req.body).every((v) =>
+//       ALLOWED_UPDATES.includes(v),
+//     );
+//     if (!isUpdateAllowed) throw new Error("Update not allowed for some fields");
+
+//     const { userId, ...update } = req.body;
+
+//     if (Object.keys(update).length === 0) {
+//       return res.status(400).send("Nothing to update");
+//     }
+
+//     const user = await User.findByIdAndUpdate(userId, update, {
+//       returnDocument: "after",
+//       runValidators: true,
+//     });
+//     // const user = await User.updateOne({ _id: userId }, update); // its provide ack me modified and insert if found or not
+//     console.log({ userId, update, user });
+//     if (!user) return res.status(404).send("user not found");
+
+//     return res.json({ message: "user updated successfully", data: user });
+//   } catch (err) {
+//     console.log(err.message);
+//     return res.status(400).send(err.message || "Something went wrong");
+//   }
+// });
+
 // PATCH ka matlab hota hai "sirf utna badlo jitni zaroorat hai".
-app.patch("/user", async (req, res) => {
+app.patch("/user/:userId", async (req, res) => {
   try {
-    const { userId, ...update } = req.body;
+    const ALLOWED_UPDATES = ["photoUrl", "about", "gender", "age", "skills"];
+    const isUpdateAllowed = Object.keys(req.body).every((v) =>
+      ALLOWED_UPDATES.includes(v),
+    );
+    if (!isUpdateAllowed) throw new Error("Update not allowed for some fields");
+
+    const userId = req.params.userId;
+    const update = req.body;
+
+    if (Object.keys(update).length === 0) {
+      return res.status(400).send("Nothing to update");
+    }
+
     const user = await User.findByIdAndUpdate(userId, update, {
       returnDocument: "after",
       runValidators: true,
@@ -67,10 +113,11 @@ app.patch("/user", async (req, res) => {
     // const user = await User.updateOne({ _id: userId }, update); // its provide ack me modified and insert if found or not
     console.log({ userId, update, user });
     if (!user) return res.status(404).send("user not found");
-    else return res.json({ message: "user updated successfully" });
+
+    return res.json({ message: "user updated successfully", data: user });
   } catch (err) {
     console.log(err.message);
-    return res.status(400).send("something went wrong");
+    return res.status(400).send(err.message || "Something went wrong");
   }
 });
 

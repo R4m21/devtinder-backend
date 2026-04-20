@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const isEmail = require("validator/lib/isEmail");
-const isUrl = require("validator/lib/isURL");
+const isURL = require("validator/lib/isURL");
 
 const userSchema = mongoose.Schema(
   {
@@ -51,7 +51,7 @@ const userSchema = mongoose.Schema(
       default:
         "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG.png",
       validate: {
-        validator: (v) => isURL(v),
+        validator: (v) => !v || isURL(v),
         message: "Invalid Photo URL",
       },
     },
@@ -65,6 +65,7 @@ const userSchema = mongoose.Schema(
       type: [String],
       validate: {
         validator: function (v) {
+          if (!v || v.length === 0) return true;
           return v && v.length >= 1 && v.length <= 10;
         },
         message: "Skills must be between 1 and 10 items",
