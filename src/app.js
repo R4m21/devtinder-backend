@@ -6,14 +6,24 @@ const app = express();
 const PORT = process.env.PORT || 7777;
 app.use(express.json());
 
+// JSON Error Handling
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+    return res
+      .status(400)
+      .send({ status: 400, message: "Invalid JSON format" });
+  }
+  next();
+});
+
 app.post("/signup", async (req, res) => {
   // Creating a new instance of the User model
   const user = new User(req.body);
   try {
     console.log(await user.save());
     return res.send("user added successfully...");
-  } catch (error) {
-    return res.status(400).send("Error saving the user:" + error.message);
+  } catch (err) {
+    return res.status(400).send("Error saving the user:" + err.message);
   }
 });
 
@@ -28,8 +38,8 @@ app.post("/signup", async (req, res) => {
 //       console.log("users", users);
 //       return res.json(users); // res.json() (Specifically for JSON) - Ye method tab use karte hain jab aapko sirf JSON data bhejna ho
 //     }
-//   } catch (error) {
-//     console.log(error.message);
+//   } catch (err) {
+//     console.log(err.message);
 //     return res.status(400).send("something went wrong");
 //   }
 // });
@@ -40,8 +50,8 @@ app.get("/user", async (req, res) => {
     const user = await User.findById(req.body.userId);
     if (!user) return res.status(404).send("user not found");
     else res.send(user); // res.send() (All-rounder) - Ye ek general-purpose method hai jo alag-alag type ka data bhej sakta hai.
-  } catch (error) {
-    console.log(error.message);
+  } catch (err) {
+    console.log(err.message);
     return res.status(400).send("something went wrong");
   }
 });
@@ -58,8 +68,8 @@ app.patch("/user", async (req, res) => {
     console.log({ userId, update, user });
     if (!user) return res.status(404).send("user not found");
     else return res.json({ message: "user updated successfully" });
-  } catch (error) {
-    console.log(error.message);
+  } catch (err) {
+    console.log(err.message);
     return res.status(400).send("something went wrong");
   }
 });
@@ -72,8 +82,8 @@ app.put("/user", async (req, res) => {
     const user = await User.replaceOne({ _id: userId }, update);
     if (!user) return res.status(404).send("user not found");
     else return res.json({ message: "user updated successfully" });
-  } catch (error) {
-    console.log(error.message);
+  } catch (err) {
+    console.log(err.message);
     return res.status(400).send("something went wrong");
   }
 });
@@ -84,8 +94,8 @@ app.delete("/user", async (req, res) => {
     const user = await User.findByIdAndDelete(userId);
     if (!user) return res.status(404).send("user not found");
     else return res.json({ message: "user deleted successfully" });
-  } catch (error) {
-    console.log(error.message);
+  } catch (err) {
+    console.log(err.message);
     return res.status(400).send("something went wrong");
   }
 });
@@ -96,21 +106,32 @@ app.get("/feed", async (req, res) => {
     const allUser = await User.find({});
     console.log("allUser", allUser);
     return res.json(allUser);
-  } catch (error) {
-    console.log(error.message);
+  } catch (err) {
+    console.log(err.message);
     res.status(400);
     return res.send("something went wrong");
   }
 });
 
+// global error handler
+app.use((err, req, res, next) => {
+  // check error stack - which file error is occurred
+  console.error("SERVER ERROR:", err.stack);
+
+  // to send global message
+  res.status(err.status || 500).send({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
+
 connectDB()
   .then(() => {
-    console.log("database is connected...");
+    console.log("Database connected successfully...");
     app.listen(PORT, () => {
-      console.log(`server successfully listening on port ${PORT}...`);
+      console.log(`Server is running on port ${PORT}`);
     });
   })
-  .catch((error) => {
-    console.log(error.message);
-    console.log("database cannot be connected!!!");
+  .catch((err) => {
+    console.error("Database connection failed:", err.message);
   });
