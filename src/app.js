@@ -29,6 +29,7 @@ app.post("/signup", async (req, res) => {
 //       return res.json(users); // res.json() (Specifically for JSON) - Ye method tab use karte hain jab aapko sirf JSON data bhejna ho
 //     }
 //   } catch (error) {
+//     console.log(error.message);
 //     return res.status(400).send("something went wrong");
 //   }
 // });
@@ -40,6 +41,7 @@ app.get("/user", async (req, res) => {
     if (!user) return res.status(404).send("user not found");
     else res.send(user); // res.send() (All-rounder) - Ye ek general-purpose method hai jo alag-alag type ka data bhej sakta hai.
   } catch (error) {
+    console.log(error.message);
     return res.status(400).send("something went wrong");
   }
 });
@@ -48,12 +50,16 @@ app.get("/user", async (req, res) => {
 app.patch("/user", async (req, res) => {
   try {
     const { userId, ...update } = req.body;
-    const user = await User.findByIdAndUpdate(userId, update, { new: true });
+    const user = await User.findByIdAndUpdate(userId, update, {
+      returnDocument: "after",
+      runValidators: true,
+    });
     // const user = await User.updateOne({ _id: userId }, update); // its provide ack me modified and insert if found or not
     console.log({ userId, update, user });
     if (!user) return res.status(404).send("user not found");
     else return res.json({ message: "user updated successfully" });
   } catch (error) {
+    console.log(error.message);
     return res.status(400).send("something went wrong");
   }
 });
@@ -67,6 +73,7 @@ app.put("/user", async (req, res) => {
     if (!user) return res.status(404).send("user not found");
     else return res.json({ message: "user updated successfully" });
   } catch (error) {
+    console.log(error.message);
     return res.status(400).send("something went wrong");
   }
 });
@@ -78,6 +85,7 @@ app.delete("/user", async (req, res) => {
     if (!user) return res.status(404).send("user not found");
     else return res.json({ message: "user deleted successfully" });
   } catch (error) {
+    console.log(error.message);
     return res.status(400).send("something went wrong");
   }
 });
@@ -89,6 +97,7 @@ app.get("/feed", async (req, res) => {
     console.log("allUser", allUser);
     return res.json(allUser);
   } catch (error) {
+    console.log(error.message);
     res.status(400);
     return res.send("something went wrong");
   }
@@ -101,6 +110,7 @@ connectDB()
       console.log(`server successfully listening on port ${PORT}...`);
     });
   })
-  .catch((err) => {
+  .catch((error) => {
+    console.log(error.message);
     console.log("database cannot be connected!!!");
   });
