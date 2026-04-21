@@ -1,7 +1,7 @@
 const express = require("express");
 const {
-  validationSignupData,
-  validationLoginData,
+  validateSignupData,
+  validateLoginData,
 } = require("../utils/validation");
 const User = require("../models/user");
 const authRouter = express.Router();
@@ -9,7 +9,7 @@ const authRouter = express.Router();
 authRouter.post("/signup", async (req, res) => {
   try {
     // validation check
-    validationSignupData(req);
+    validateSignupData(req);
 
     // need to password hash before the saving data on database
     const { firstName, lastName, emailId, password } = req.body;
@@ -31,7 +31,7 @@ authRouter.post("/signup", async (req, res) => {
 authRouter.post("/login", async (req, res) => {
   try {
     // validation check
-    validationLoginData(req);
+    validateLoginData(req);
 
     const { emailId, password } = req.body;
     const user = await User.findOne({ emailId });
