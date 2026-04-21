@@ -45,7 +45,7 @@ authRouter.post("/login", async (req, res) => {
     const accessToken = await user.setJwtAccessToken();
     res.cookie("accessToken", accessToken, {
       // expires: new Date(Date.now() + 1 * 60 * 60 * 1000), // expired in 1 hour, its base on date
-      maxAge: 5 * 60 * 1000, // expired in 5 min its based on millisecond on current time
+      maxAge: 24 * 60 * 60 * 1000, // expired in 5 min its based on millisecond on current time
     });
 
     return res.send("login successfully...");

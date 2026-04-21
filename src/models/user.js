@@ -111,7 +111,7 @@ userSchema.methods.validatePassword = async function (passwordInputByUser) {
 userSchema.methods.setJwtAccessToken = async function () {
   const user = this;
   const token = jwt.sign({ _id: user._id }, JWT_ACCESS_SECRET, {
-    expiresIn: "2m", // expired in 2min, standard expires is 10-15min, need to validate refresh token
+    expiresIn: "15m", // expired in 15min, standard expires is 10-15min, need to validate refresh token
   });
   return token;
 };
