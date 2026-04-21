@@ -8,9 +8,11 @@ const {
   validationLoginData,
 } = require("./utils/validation");
 const User = require("./models/user");
+const jwt = require("jsonwebtoken");
 const app = express();
 const PORT = process.env.PORT || 7777;
 const SALT_ROUND = process.env.SALT_ROUND || 10;
+const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -54,7 +56,7 @@ app.post("/login", async (req, res) => {
     // validation check
     validationLoginData(req);
 
-    // need to password compare with db store hashPassword
+    // need to password compare and validated with db store hashPassword
     const { emailId, password } = req.body;
     const user = await User.findOne({ emailId });
     if (!user) {
@@ -64,18 +66,27 @@ app.post("/login", async (req, res) => {
     if (!isPasswordValid) {
       throw new Error("Invalid credential");
     }
-    res.cookie("token", "dsdcs1213sjahbkcsdhcbvsdct9yiufgccycbccobhdc");
+
+    // need to create json web token here after password is validated
+    const token = await jwt.sign({ _id: user._id }, JWT_SECRET);
+    res.cookie("token", token);
     return res.send("login successfully...");
   } catch (err) {
     return res.status(400).send("Error : " + err.message);
   }
 });
 
-app.get("/profile", (req, res) => {
+app.get("/profile", async (req, res) => {
   try {
-    console.log(req.cookies);
-    const { cookie } = req.cookies;
-    return res.send("get user data profile...");
+    const { token } = req.cookies;
+    if (!token) throw new Error("Invalid token");
+
+    const decodedMessage = await jwt.verify(token, JWT_SECRET);
+    const { _id } = decodedMessage;
+    const user = await User.findById(_id);
+
+    if (!user) throw new Error("user does not exist");
+    return res.send(user);
   } catch (err) {
     return res.status(400).send("Error : " + err.message);
   }
