@@ -7,12 +7,12 @@ const {
   validationSignupData,
   validationLoginData,
 } = require("./utils/validation");
+
+const { userAuth } = require("./middlewares/auth");
 const User = require("./models/user");
 const jwt = require("jsonwebtoken");
 const app = express();
 const PORT = process.env.PORT || 7777;
-const SALT_ROUND = process.env.SALT_ROUND || 10;
-const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -35,15 +35,14 @@ app.post("/signup", async (req, res) => {
 
     // need to password hash before the saving data on database
     const { firstName, lastName, emailId, password } = req.body;
-    const hashPassword = await bcrypt.hash(password, Number(SALT_ROUND));
-
     const user = new User({
       firstName,
       lastName,
       emailId,
-      password: hashPassword,
+      password,
     });
 
+    await user.setPasswordHashInDB();
     await user.save();
     return res.send("user added successfully...");
   } catch (err) {
@@ -56,37 +55,38 @@ app.post("/login", async (req, res) => {
     // validation check
     validationLoginData(req);
 
-    // need to password compare and validated with db store hashPassword
     const { emailId, password } = req.body;
     const user = await User.findOne({ emailId });
-    if (!user) {
-      throw new Error("Invalid credential");
-    }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      throw new Error("Invalid credential");
-    }
+    if (!user) throw new Error("Invalid credential");
+
+    // need to password compare and validated with db store passwordHash
+    const isValidPassword = await user.validatePassword(password);
+    if (!isValidPassword) throw new Error("Invalid credential");
 
     // need to create json web token here after password is validated
-    const token = await jwt.sign({ _id: user._id }, JWT_SECRET);
-    res.cookie("token", token);
+    const accessToken = await user.setJwtAccessToken();
+    res.cookie("accessToken", accessToken, {
+      // expires: new Date(Date.now() + 1 * 60 * 60 * 1000), // expired in 1 hour, its base on date
+      maxAge: 5 * 60 * 1000, // expired in 5 min its based on millisecond on current time
+    });
+
     return res.send("login successfully...");
   } catch (err) {
     return res.status(400).send("Error : " + err.message);
   }
 });
 
-app.get("/profile", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    const { token } = req.cookies;
-    if (!token) throw new Error("Invalid token");
+    return res.send(req.user);
+  } catch (err) {
+    return res.status(400).send("Error : " + err.message);
+  }
+});
 
-    const decodedMessage = await jwt.verify(token, JWT_SECRET);
-    const { _id } = decodedMessage;
-    const user = await User.findById(_id);
-
-    if (!user) throw new Error("user does not exist");
-    return res.send(user);
+app.post("/sendConnectionRequest", userAuth, async (req, res) => {
+  try {
+    res.send("connection send successfully...");
   } catch (err) {
     return res.status(400).send("Error : " + err.message);
   }

@@ -2,12 +2,16 @@ const mongoose = require("mongoose");
 const isEmail = require("validator/lib/isEmail");
 const isURL = require("validator/lib/isURL");
 const isStrongPassword = require("validator/lib/isStrongPassword");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const SALT_ROUND = Number(process.env.SALT_ROUND || 10);
+const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
 
 const userSchema = mongoose.Schema(
   {
     firstName: {
       type: String,
-      required: [true, "firstname is required"],
+      required: [true, "firstName is required"],
       trim: true,
       minLength: 4,
       maxLength: 50,
@@ -79,5 +83,37 @@ const userSchema = mongoose.Schema(
   },
   { timestamps: true },
 );
+
+userSchema.methods.setPasswordHashInDB = async function () {
+  try {
+    const user = this;
+    const passwordHash = await bcrypt.hash(user.password, SALT_ROUND);
+    user.password = passwordHash;
+  } catch (err) {
+    throw new Error("Something went wrong");
+  }
+};
+
+userSchema.methods.validatePassword = async function (passwordInputByUser) {
+  try {
+    const user = this;
+    const passwordHash = user.password;
+    const isValidPassword = await bcrypt.compare(
+      passwordInputByUser,
+      passwordHash,
+    );
+    return isValidPassword;
+  } catch (err) {
+    throw new Error("Something went wrong");
+  }
+};
+
+userSchema.methods.setJwtAccessToken = async function () {
+  const user = this;
+  const token = jwt.sign({ _id: user._id }, JWT_ACCESS_SECRET, {
+    expiresIn: "2m", // expired in 2min, standard expires is 10-15min, need to validate refresh token
+  });
+  return token;
+};
 
 module.exports = mongoose.model("User", userSchema);
