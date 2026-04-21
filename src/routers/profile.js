@@ -1,8 +1,9 @@
 const express = require("express");
 const { userAuth } = require("../middlewares/auth");
-const { validateEditProfileData } = require("../utils/validation");
-const User = require("../models/user");
-const isStrongPassword = require("validator/lib/isStrongPassword");
+const {
+  validateEditProfileData,
+  validateChangePasswordInProfileData,
+} = require("../utils/validation");
 const profileRouter = express.Router();
 
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
@@ -38,12 +39,15 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
 
 profileRouter.patch("/profile/password", userAuth, async (req, res) => {
   try {
-    const { password } = req.body;
-    if (!isStrongPassword(password)) throw new Error("Enter a strong password");
+    await validateChangePasswordInProfileData(req);
+
+    const { newPassword } = req.body;
     const loggedInUser = req.user;
-    loggedInUser.password = password;
+
+    loggedInUser.password = newPassword;
     await loggedInUser.setPasswordHashInDB();
     await loggedInUser.save();
+
     return res.json({
       message: "password update successfully...",
       data: loggedInUser,

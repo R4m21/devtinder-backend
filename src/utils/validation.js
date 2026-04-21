@@ -50,8 +50,21 @@ const validateEditProfileData = (req) => {
     throw new Error("Skills must be between 1 and 10 items");
 };
 
+const validateChangePasswordInProfileData = async (req) => {
+  const { oldPassword, newPassword } = req.body;
+
+  if (!newPassword || !isStrongPassword(newPassword))
+    throw new Error("Enter a strong new password");
+
+  const loggedInUser = req.user;
+
+  const isMatch = await loggedInUser.validatePassword(oldPassword);
+  if (!isMatch) throw new Error("Old password does not match");
+};
+
 module.exports = {
   validateLoginData,
   validateSignupData,
   validateEditProfileData,
+  validateChangePasswordInProfileData,
 };
