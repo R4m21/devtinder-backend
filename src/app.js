@@ -1,5 +1,6 @@
 require("./config/env");
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const connectDB = require("./config/database");
 const bcrypt = require("bcrypt");
 const {
@@ -12,6 +13,7 @@ const PORT = process.env.PORT || 7777;
 const SALT_ROUND = process.env.SALT_ROUND || 10;
 
 app.use(express.json());
+app.use(cookieParser());
 
 // JSON Error Handling
 app.use((err, req, res, next) => {
@@ -40,7 +42,7 @@ app.post("/signup", async (req, res) => {
       password: hashPassword,
     });
 
-    console.log(await user.save());
+    await user.save();
     return res.send("user added successfully...");
   } catch (err) {
     return res.status(400).send("Error : " + err.message);
@@ -62,7 +64,18 @@ app.post("/login", async (req, res) => {
     if (!isPasswordValid) {
       throw new Error("Invalid credential");
     }
+    res.cookie("token", "dsdcs1213sjahbkcsdhcbvsdct9yiufgccycbccobhdc");
     return res.send("login successfully...");
+  } catch (err) {
+    return res.status(400).send("Error : " + err.message);
+  }
+});
+
+app.get("/profile", (req, res) => {
+  try {
+    console.log(req.cookies);
+    const { cookie } = req.cookies;
+    return res.send("get user data profile...");
   } catch (err) {
     return res.status(400).send("Error : " + err.message);
   }
