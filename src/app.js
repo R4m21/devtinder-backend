@@ -3,9 +3,9 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/database");
 const authRouter = require("./routers/auth");
-// const userRouter = require("./routers/user");
 const profileRouter = require("./routers/profile");
 const requestRouter = require("./routers/request");
+const userRouter = require("./routers/user");
 const app = express();
 const PORT = process.env.PORT || 7777;
 
@@ -23,9 +23,9 @@ app.use((err, req, res, next) => {
 });
 
 app.use(authRouter);
-// app.use(userRouter);
 app.use(profileRouter);
 app.use(requestRouter);
+app.use(userRouter);
 
 // global error handler
 app.use((err, req, res, next) => {

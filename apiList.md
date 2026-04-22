@@ -23,8 +23,9 @@
 <!-- - POST /request/review/reported/:userId -->
 
 ## userRouter
-- GET /user/connections
+- GET /user/requests/received
 - GET /user/requests
+- GET /user/connections
 - GET /user/feed
 
 Status - ignored, interested, accepted and rejected
