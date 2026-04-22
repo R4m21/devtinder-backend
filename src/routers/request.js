@@ -66,22 +66,6 @@ requestRouter.post(
       const loggedInUser = req.user;
       const { status, requestId } = req?.params || {};
 
-      // check in connection request in db
-      // 1. check and direct update in db
-      // const connectionRequest = await ConnectionRequest.findOneAndUpdate(
-      //   {
-      //     _id: requestId,
-      //     toUserId: loggedInUser._id,
-      //     status: "interested",
-      //   },
-      //   { status },
-      //   {
-      //     returnDocument: "after",
-      //     runValidators: true,
-      //   },
-      // );
-
-      // 2. check and save in db its recommend use this
       const connectionRequest = await ConnectionRequest.findOne({
         _id: requestId,
         toUserId: loggedInUser._id,
