@@ -13,13 +13,13 @@ const userSchema = mongoose.Schema(
       type: String,
       required: [true, "firstName is required"],
       trim: true,
-      minLength: 4,
+      minLength: 2,
       maxLength: 50,
     },
     lastName: {
       type: String,
       trim: true,
-      minLength: 4,
+      minLength: 2,
       maxLength: 50,
     },
     emailId: {
@@ -50,7 +50,7 @@ const userSchema = mongoose.Schema(
       type: String,
       lowercase: true,
       enum: {
-        values: ["male", "female", "others"],
+        values: ["male", "female", "other"],
         message: "{VALUE} is not a valid gender",
       },
     },
