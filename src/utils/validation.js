@@ -63,7 +63,7 @@ const validateChangePasswordInProfileData = async (req) => {
 };
 
 const validateConnectionRequest = (req) => {
-  const { status, toUserId } = req.params;
+  const { status, toUserId } = req?.params || {};
   const ALLOWED_STATUS = ["ignored", "interested"];
   if (
     !status ||
@@ -74,10 +74,23 @@ const validateConnectionRequest = (req) => {
     throw new Error("invalid connection request");
 };
 
+const validateConnectionReview = (req) => {
+  const { status, requestId } = req?.params || {};
+  const ALLOWED_STATUS = ["accepted", "rejected"];
+  if (
+    !status ||
+    !ALLOWED_STATUS.includes(status) ||
+    !requestId ||
+    requestId === req.user._id.toString()
+  )
+    throw new Error("invalid connection review");
+};
+
 module.exports = {
   validateLoginData,
   validateSignupData,
   validateEditProfileData,
   validateChangePasswordInProfileData,
   validateConnectionRequest,
+  validateConnectionReview,
 };

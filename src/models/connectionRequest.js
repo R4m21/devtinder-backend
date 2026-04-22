@@ -31,7 +31,7 @@ connectionRequestSchema.pre("save", async function (next) {
   const connectionRequest = this;
   if (connectionRequest.fromUserId.equals(connectionRequest.toUserId))
     throw new Error("Connection request cannot send your self...");
-  next();
+  // next(); // no need call after mongoose v5.x.x and async callback
 });
 
 const ConnectionRequestModel = new mongoose.model(
