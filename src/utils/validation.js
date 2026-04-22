@@ -62,9 +62,22 @@ const validateChangePasswordInProfileData = async (req) => {
   if (!isMatch) throw new Error("Old password does not match");
 };
 
+const validateConnectionRequest = (req) => {
+  const { status, toUserId } = req.params;
+  const ALLOWED_STATUS = ["ignored", "interested"];
+  if (
+    !status ||
+    !ALLOWED_STATUS.includes(status) ||
+    !toUserId ||
+    toUserId === req.user._id.toString()
+  )
+    throw new Error("invalid connection request");
+};
+
 module.exports = {
   validateLoginData,
   validateSignupData,
   validateEditProfileData,
   validateChangePasswordInProfileData,
+  validateConnectionRequest,
 };
