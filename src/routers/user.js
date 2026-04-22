@@ -8,34 +8,11 @@ const userRouter = express.Router();
 userRouter.get("/user/requests/received", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
-    // 1. its mongodb query
-    // const data = await ConnectionRequest.aggregate([
-    //   { $match: { toUserId: loggedInUser._id, status: "interested" } },
-    //   {
-    //     $lookup: {
-    //       from: "users",
-    //       localField: "fromUserId",
-    //       foreignField: "_id",
-    //       as: "fromUser",
-    //     },
-    //   },
-    //   { $unwind: "$fromUser" },
-    //   {
-    //     $project: {
-    //       "fromUser.firstName": 1,
-    //       "fromUser.lastName": 1,
-    //       "fromUser.photoUrl": 1,
-    //     },
-    //   },
-    // ]);
 
-    // its mongoose query its avoid extra boiler plate code, its use then need to ref to your schema link
     const data = await ConnectionRequest.find({
       toUserId: loggedInUser._id,
       status: "interested",
-    })
-      // .populate("fromUserId", ["firstName", "lastName", "photoUrl"]); // both are same result get
-      .populate("fromUserId", "firstName lastName photoUrl");
+    }).populate("fromUserId", "firstName lastName photoUrl");
 
     return res.json({
       message: "data fetch successfully",
