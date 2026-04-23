@@ -116,4 +116,5 @@ userSchema.methods.setJwtAccessToken = async function () {
   return token;
 };
 
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+module.exports = User;
