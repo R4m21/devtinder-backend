@@ -13,6 +13,7 @@
   "scripts": {
     "start": "NODE_ENV=production node src/app.js",
     "dev": "NODE_ENV=development npx nodemon src/app.js",
+    "seed": "NODE_ENV=development node src/scripts/seed.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -23,5 +24,8 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.4.1",
     "validator": "^13.15.35"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.4.0"
   }
 }
