@@ -1,5 +1,6 @@
 require("./config/env");
 const express = require("express");
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/database");
 const authRouter = require("./routers/auth");
@@ -8,7 +9,14 @@ const requestRouter = require("./routers/request");
 const userRouter = require("./routers/user");
 const app = express();
 const PORT = process.env.PORT || 7777;
+const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 
+app.use(
+  cors({
+    origin: CLIENT_URL,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(cookieParser());
 
