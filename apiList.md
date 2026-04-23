@@ -14,18 +14,9 @@
 - POST /request/send/:status/:toUserId
 - POST /request/review/:status/:requestId
 
-
-<!-- - POST /request/send/ignored/:userId -->
-<!-- - POST /request/send/interested/:userId -->
-<!-- - POST /request/review/accepted/:requestId -->
-<!-- - POST /request/review/rejected/:requestId -->
-<!-- - POST /request/review/blocked/:userId -->
-<!-- - POST /request/review/reported/:userId -->
-
 ## userRouter
 - GET /user/requests/received
 - GET /user/connections
 - GET /user/feed
-- GET /user/requests
 
 Status - ignored, interested, accepted and rejected

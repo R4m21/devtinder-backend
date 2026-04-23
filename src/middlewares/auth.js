@@ -16,7 +16,10 @@ const userAuth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
-    return res.status(400).send("Error : " + err.message || "Invalid token");
+    return res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 

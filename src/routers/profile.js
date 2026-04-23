@@ -10,11 +10,15 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
     return res.json({
+      success: true,
       message: `hello ${loggedInUser.firstName}`,
       data: loggedInUser,
     });
   } catch (err) {
-    return res.status(400).send("Error : " + err.message);
+    return res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 });
 
@@ -29,11 +33,15 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
     await loggedInUser.save();
 
     return res.json({
+      success: true,
       message: `${loggedInUser.firstName}, your profile is updates successfully...`,
       data: loggedInUser,
     });
   } catch (err) {
-    return res.status(400).send("Error : " + err.message);
+    return res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 });
 
@@ -49,11 +57,15 @@ profileRouter.patch("/profile/password", userAuth, async (req, res) => {
     await loggedInUser.save();
 
     return res.json({
+      success: true,
       message: "password update successfully...",
       data: loggedInUser,
     });
   } catch (err) {
-    return res.status(400).send("Error : " + err.message);
+    return res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 });
 

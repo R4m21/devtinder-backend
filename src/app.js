@@ -17,7 +17,7 @@ app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
     return res
       .status(400)
-      .send({ status: 400, message: "Invalid JSON format" });
+      .json({ success: false, message: "Invalid JSON format" });
   }
   next();
 });
@@ -33,7 +33,7 @@ app.use((err, req, res, next) => {
   console.error("SERVER ERROR:", err.stack);
 
   // to send global message
-  res.status(err.status || 500).send({
+  res.status(err.status || 500).json({
     success: false,
     message: err.message || "Internal Server Error",
   });

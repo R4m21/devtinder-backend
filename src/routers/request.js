@@ -44,11 +44,13 @@ requestRouter.post(
       const data = await connectionRequest.save();
 
       res.json({
+        success: true,
         message: `${loggedInUser.firstName} is ${status} in ${toUser.firstName}`,
         data,
       });
     } catch (err) {
       return res.status(400).json({
+        success: false,
         message: err.message,
       });
     }
@@ -79,11 +81,13 @@ requestRouter.post(
       const data = await connectionRequest.save();
 
       return res.json({
+        success: true,
         message: `you have ${status} connection request successfully`,
         data,
       });
     } catch (err) {
       return res.status(400).json({
+        success: false,
         message: err.message,
       });
     }

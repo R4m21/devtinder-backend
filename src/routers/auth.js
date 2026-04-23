@@ -22,9 +22,15 @@ authRouter.post("/signup", async (req, res) => {
 
     await user.setPasswordHashInDB();
     await user.save();
-    return res.send("user added successfully...");
+    return res.status(201).json({
+      success: true,
+      message: `Hello ${user.firstName}, you have signup successfully...`,
+    });
   } catch (err) {
-    return res.status(400).send("Error : " + err.message);
+    return res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 });
 
@@ -48,15 +54,24 @@ authRouter.post("/login", async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000, // expired in 5 min its based on millisecond on current time
     });
 
-    return res.send("login successfully...");
+    return res.json({
+      success: true,
+      message: `Hello ${user.firstName}, you have login successfully...`,
+    });
   } catch (err) {
-    return res.status(400).send("Error : " + err.message);
+    return res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 });
 
 authRouter.post("/logout", async (req, res) => {
   res.clearCookie("accessToken");
-  return res.send("logout successfully...");
+  return res.json({
+    success: true,
+    message: "Logged out successfully",
+  });
 });
 
 module.exports = authRouter;
