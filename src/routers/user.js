@@ -58,6 +58,11 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
 
 userRouter.get("/user/feed", userAuth, async (req, res) => {
   try {
+    let page = Number(req?.query?.page) || 1;
+    let limit = Number(req?.query?.limit) || 10;
+    limit = limit > 50 ? 50 : limit;
+    let skip = (page - 1) * limit;
+
     const loggedInUser = req.user;
 
     const connectionRequest = await ConnectionRequest.find({
@@ -73,7 +78,9 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
     const data = await User.find(
       { _id: { $nin: Array.from(hideUsersFromFeed) } },
       USER_SAFE_DATA,
-    );
+    )
+      .skip(skip)
+      .limit(limit);
 
     res.json({
       message: "data fetch successfully",
@@ -85,77 +92,5 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
     });
   }
 });
-
-// userRouter.get("/user/feed", userAuth, async (req, res) => {
-//   try {
-//     /**
-//      * 1. fetch all user exclude loggedInUser skip 0 limit 20  -> allUserData // send the 20 data after comes then skip 20 next 20 fetch
-//      * 2. fetch all connection loggedInUser either toUserId or fromUserId -> allConnectionRequestData
-//      * 3. filter allUserData by allConnectionRequestData if userId match in either toUserId or fromUserId
-//      */
-
-//     const loggedInUser = req.user;
-
-//     const users = await User.aggregate([
-//       { $match: { _id: { $ne: loggedInUser._id } } }, // Pehle hi khud ko hatao
-//       {
-//         $lookup: {
-//           from: "connectionrequests", // Collection name
-//           let: { userId: "$_id" },
-//           pipeline: [
-//             {
-//               $match: {
-//                 $expr: {
-//                   $and: [
-//                     {
-//                       $or: [
-//                         { $eq: ["$fromUserId", "$$userId"] },
-//                         { $eq: ["$toUserId", "$$userId"] },
-//                       ],
-//                     },
-//                     {
-//                       $or: [
-//                         { $eq: ["$fromUserId", loggedInUser._id] },
-//                         { $eq: ["$toUserId", loggedInUser._id] },
-//                       ],
-//                     },
-//                   ],
-//                 },
-//               },
-//             },
-//           ],
-//           as: "connection",
-//         },
-//       },
-//       { $match: { "connection.0": { $exists: false } } }, // Sirf wahi dikhao jahan connection na ho
-//       { $limit: 20 },
-//       {
-//         $project: {
-//           firstName: 1,
-//           lastName: 1,
-//           emailId: 1,
-//           age: 1,
-//           gender: 1,
-//           photoUrl: 1,
-//           skills: 1,
-//           about: 1,
-//         },
-//       },
-//     ]);
-
-//     console.log(users);
-//     let data = users;
-
-//     res.json({
-//       message: "data fetch successfully",
-//       data: data,
-//       count: data.length,
-//     });
-//   } catch (err) {
-//     return res.status(400).json({
-//       message: err.message,
-//     });
-//   }
-// });
 
 module.exports = userRouter;
