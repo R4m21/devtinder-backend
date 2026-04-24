@@ -36,7 +36,7 @@ const validateEditProfileData = (req) => {
   // 2. Value Validation (Data Quality)
   const { age, gender, photoUrl, about, skills } = req.body;
 
-  if (age && age > 18) throw new Error("Age must be at least 18");
+  if (age && age < 18) throw new Error("Age must be at least 18");
 
   if (gender && !["male", "female", "other"].includes(gender.toLowerCase()))
     throw new Error(`${gender} is not a valid gender`);
