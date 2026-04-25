@@ -22,9 +22,16 @@ authRouter.post("/signup", async (req, res) => {
 
     await user.setPasswordHashInDB();
     await user.save();
+
+    const accessToken = await user.setJwtAccessToken();
+    res.cookie("accessToken", accessToken, {
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
     return res.status(201).json({
       success: true,
       message: `Hello ${user.firstName}, you have signup successfully...`,
+      data: user,
     });
   } catch (err) {
     return res.status(400).json({
