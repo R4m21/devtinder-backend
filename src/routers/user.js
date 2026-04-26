@@ -2,7 +2,7 @@ const express = require("express");
 const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
-const USER_SAFE_DATA = "firstName lastName age gender photoUrl skills about";
+const USER_SAFE_DATA = "firstName lastName emailId age gender photoUrl skills about";
 
 const userRouter = express.Router();
 
@@ -74,6 +74,7 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
     }).select("fromUserId toUserId");
 
     const hideUsersFromFeed = new Set();
+    hideUsersFromFeed.add(loggedInUser._id);
     connectionRequest.forEach((req) => {
       hideUsersFromFeed.add(req.fromUserId);
       hideUsersFromFeed.add(req.toUserId);
