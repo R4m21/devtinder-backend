@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+/jspm_packages/
+.pnp
+.pnp.js
+
+# Environment Variables (IMPORTANT: Security ke liye)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+*.env.*
+
+# Build aur Output folders
+dist/
+build/
+out/
+.next/
+bin/
+obj/
+
+# Logs aur Debugging
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+logs/
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor aur IDE folders
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Temporary Files
+tmp/
+temp/
