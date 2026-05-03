@@ -29,6 +29,7 @@ authRouter.post("/signup", async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
+      path: "/",
     });
 
     return res.status(201).json({
@@ -65,6 +66,7 @@ authRouter.post("/login", async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
+      path: "/",
     });
 
     return res.json({
@@ -81,11 +83,18 @@ authRouter.post("/login", async (req, res) => {
 });
 
 authRouter.post("/logout", async (req, res) => {
-  res.clearCookie("accessToken",{ 
-  httpOnly: true, 
-  secure: true, 
-  sameSite: "none" 
-});
+  // res.clearCookie("accessToken", {
+  //   httpOnly: true,
+  //   secure: true,
+  //   sameSite: "none",
+  // });
+  res.cookie("accessToken", "", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    expires: new Date(0),
+    path: "/",
+  });
   return res.json({
     success: true,
     message: "Logged out successfully",

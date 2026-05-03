@@ -11,6 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 7777;
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 
+app.set("trust proxy", 1); // trust first proxy for render
 app.use(
   cors({
     origin: CLIENT_URL,
