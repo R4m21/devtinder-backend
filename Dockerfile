@@ -1,7 +1,14 @@
-FROM node:24.14.0
+# --- BUILD STAGE ---
+FROM node:24.14.0 AS installer
 WORKDIR /app
 COPY package*.json ./
-# RUN npm install - its for development, RUN npm ci --only=production its for production for clean installation
-RUN npm ci --only=production 
+# only production dependencies
+RUN npm ci --only=production
+
+# --- RUNTIME STAGE --- ..its install node 1gb+
+FROM node:24.14.0
+WORKDIR /app
+COPY --from=installer /app/node_modules ./node_modules
 COPY . .
+USER node
 CMD ["npm", "start"]
